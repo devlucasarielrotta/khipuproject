@@ -1,0 +1,46 @@
+<!-- exitoso.html -->
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pago exitoso</title>
+</head>
+
+<body>
+    <h1>¡Gracias por tu compra!</h1>
+    <p>Hacé clic para verificar el estado del pago y finalizar el proceso:</p>
+    <button id="verificarPago">Verificar estado del pago</button>
+    <p id="resultado"></p>
+
+    <script>
+        document.getElementById('verificarPago').addEventListener('click', async () => {
+            const productoJSON = localStorage.getItem('productoSeleccionado');
+            const producto = productoJSON ? JSON.parse(productoJSON) : null;
+
+            if (!producto || !producto[0].payment_id) {
+                alert('No se encontró información del pago.');
+                return;
+            }
+
+            const res = await fetch(`/estado-pago/${producto[0].payment_id}`);
+
+            const data = await res.json();
+            console.log(data);
+            const resultado = document.getElementById('resultado');
+
+            if (data.status === 'done') {
+                resultado.textContent = '✅ Pago confirmado. Gracias por tu compra.';
+                localStorage.removeItem('productoSeleccionado');
+                document.getElementById('verificarPago').disabled = true;
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 3000);
+            } else {
+                resultado.textContent = `⚠️ Estado del pago: ${data.status}`;
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,44 @@
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+    h1{
+        color: #8347AD;
+        text-align: center;
+    }
+    .container {
+      margin: 0 auto;
+      border: 3px solid #8347AD;
+      display: block;
+      gap: 50px;
+      align-items: justify-between;
+      padding: 10px;
+      width: 50%;
+      justify-content: center;
+    }
+  
+
+    form {
+      margin: 0 auto;
+      width: 300px;
+    }
+
+    .producto {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      width: 300px;
+      margin-bottom: 10px;
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .producto img {
+        
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    #khipu-web-root {
+      margin-top: 20px;
+    }

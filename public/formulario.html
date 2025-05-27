@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Formulario de pago</title>
+    <script src="https://js.khipu.com/v1/kws.js"></script>
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+
+<body>
+    <h1>Proceso de compra</h1>
+    <div class="container">
+        <!-- 🛒 Producto -->
+        <div class="producto">
+            <img src="https://www.puntoblu.com.ar/media/catalog/product/cache/ba8bb5c50f03402a6f6b7b5794966e5f/4/7/4710268255574_mesa_de_trabajo_1_copia.jpg"
+                alt="Teclado Mecánico">
+            <h3>Teclado Mecánico</h3>
+            <p>Ideal para programadores. Switches rojos, retroiluminado RGB.</p>
+            <strong>$2500 ARS</strong>
+        </div>
+
+        <h3>Datos del cliente</h3>
+        <!-- 📝 Formulario -->
+        <form id="payment-form">
+            <label>
+                Nombre completo: <br />
+                <input type="text" name="nombreCliente" required />
+            </label>
+            <br /><br />
+            <label>
+                Email: <br />
+                <input type="email" name="email" required />
+            </label>
+            <br /><br />
+            <label>
+                Mostrar modal de pago:
+                <input type="checkbox" id="toggle-modal" checked />
+            </label>
+            <br /><br />
+            <button type="submit" id="pagar-btn">Pagar</button>
+            <div id="khipu-web-root"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('payment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('pagar-btn');
+            btn.disabled = true;
+            btn.textContent = 'Procesando...';
+            const formData = new FormData(e.target);
+            const nombreCliente = formData.get('nombreCliente');
+            const email = formData.get('email');
+            const mostrarModal = document.getElementById('toggle-modal').checked;
+            const productoJSON = localStorage.getItem('productoSeleccionado');
+            const producto = productoJSON ? JSON.parse(productoJSON) : null;
+
+            if (!producto) {
+                alert('❌ No se encontró información del producto en localStorage.');
+                return;
+            }
+
+            const payload = {
+                nombreCliente,
+                email,
+                producto
+            };
+
+            try {
+
+                const res = await fetch('/crear-cobro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (data.payment_id) {
+                    const khipu = new Khipu();
+                    producto[0].payment_id = data.payment_id;
+                    localStorage.setItem('productoSeleccionado', JSON.stringify(producto))
+
+                    if (mostrarModal) {
+                        const options = {
+                            mountElement: document.getElementById('khipu-web-root'),
+                            modal: true,
+                            modalOptions: { maxWidth: 450, maxHeight: 860 },
+                            style: { primaryColor: '#8347AD', fontFamily: 'Roboto' },
+                            skipExitPage: false
+                        };
+
+                        const callback = (result) => {
+                            console.log('Resultado de la operación:', result);
+
+                            if (result.result === 'ERROR') {
+                                alert('❌ Error: Operación anulada');
+                                window.location.href = '/cancelado';
+                                return;
+                            }
+
+                        };
+
+                        khipu.startOperation(data.payment_id, callback, options);
+                    } else {
+                        window.location.href = data.payment_url;
+                    }
+
+                } else if (data.payment_url) {
+                    window.location.href = data.payment_url;
+                } else {
+                    alert('❌ No se pudo obtener el link de pago.');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('❌ Error al conectar con el servidor.');
+            }
+        });
+    </script>
+</body>
+
+</html>
