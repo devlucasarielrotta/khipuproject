@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pago cancelado</title>
+  <!-- redirige a index luego de 10s -->
+  <meta http-equiv="refresh" content="10; url=/index.html">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding-top: 50px; }
+    h1 { color: #c00; }
+  </style>
+</head>
+<body>
+  <h1>❌ Pago cancelado</h1>
+  <p>Procesando cancelación… Serás redirigido al inicio en 10 segundos.</p>
+
+  <script>
+    (async () => {
+      // 1. Leer payment_id de la URL
+      const params = new URLSearchParams(window.location.search);
+      const payment_id = params.get('payment_id');
+      if (!payment_id) return;
+      
+      // 2. Llamar a tu DELETE en el backend
+      try {
+        await fetch(`/cancelado/${payment_id}`); 
+       
+        // tu ruta GET /cancelado/:id ejecuta el DELETE en Khipu y devuelve este mismo HTML
+      } catch (err) {
+        console.error('Error cancelando en el servidor:', err);
+      }
+    })();
+  </script>
+</body>
+</html>

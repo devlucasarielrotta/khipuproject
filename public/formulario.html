@@ -17,7 +17,7 @@
                 alt="Teclado Mecánico">
             <h3>Teclado Mecánico</h3>
             <p>Ideal para programadores. Switches rojos, retroiluminado RGB.</p>
-            <strong>$2500 ARS</strong>
+            <strong>$2500 CLP</strong>
         </div>
 
         <h3>Datos del cliente</h3>
@@ -31,11 +31,6 @@
             <label>
                 Email: <br />
                 <input type="email" name="email" required />
-            </label>
-            <br /><br />
-            <label>
-                Mostrar modal de pago:
-                <input type="checkbox" id="toggle-modal" checked />
             </label>
             <br /><br />
             <button type="submit" id="pagar-btn">Pagar</button>
@@ -52,7 +47,7 @@
             const formData = new FormData(e.target);
             const nombreCliente = formData.get('nombreCliente');
             const email = formData.get('email');
-            const mostrarModal = document.getElementById('toggle-modal').checked;
+         
             const productoJSON = localStorage.getItem('productoSeleccionado');
             const producto = productoJSON ? JSON.parse(productoJSON) : null;
 
@@ -82,7 +77,7 @@
                     producto[0].payment_id = data.payment_id;
                     localStorage.setItem('productoSeleccionado', JSON.stringify(producto))
 
-                    if (mostrarModal) {
+                    
                         const options = {
                             mountElement: document.getElementById('khipu-web-root'),
                             modal: true,
@@ -95,17 +90,15 @@
                             console.log('Resultado de la operación:', result);
 
                             if (result.result === 'ERROR') {
-                                alert('❌ Error: Operación anulada');
-                                window.location.href = '/cancelado';
+                              
+                                window.location.href = `/cancelado/${data.payment_id}`;
                                 return;
                             }
 
                         };
 
                         khipu.startOperation(data.payment_id, callback, options);
-                    } else {
-                        window.location.href = data.payment_url;
-                    }
+                     
 
                 } else if (data.payment_url) {
                     window.location.href = data.payment_url;

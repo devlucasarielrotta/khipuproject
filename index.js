@@ -22,7 +22,7 @@ app.post('/crear-cobro', async (req, res) => {
     const { producto: productos, nombreCliente, email } = req.body;
     const producto = productos[0];
    
-    const response = await fetch(`${process.env.KHIPU_BASE_URL}/payments`, {
+    const response = await fetch(`${process.env.KHIPU_BASE_URL}/v3/payments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ app.get('/estado-pago/:id', async (req, res) => {
   }
 
   try {
-    const response = await fetch(`${process.env.KHIPU_BASE_URL}/payments/${payment_id}`, {
+    const response = await fetch(`${process.env.KHIPU_BASE_URL}/v3/payments/${payment_id}`, {
       method: 'GET',
       headers: {
         'x-api-key': process.env.KHIPU_API_KEY
@@ -113,7 +113,26 @@ app.get('/estado-pago/:id', async (req, res) => {
 });
 
 
-app.get('/cancelado', (req, res) => res.send('<h1>❌ Pago cancelado</h1>'));
+app.get('/cancelado/:payment_id', async (req, res) => {
+  const { payment_id } = req.params;
+  console.log('Cancelando pago con ID:', payment_id);
+
+  try {
+    const url = `${process.env.KHIPU_BASE_URL}/v3/payments/${payment_id}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'x-api-key': process.env.KHIPU_API_KEY
+      }
+    });
+    console.log('Khipu DELETE status:', response.status);
+  } catch (err) {
+    console.error('Error en DELETE /payments/:id', err);
+  }
+
+  // luego sirvo la página estática con meta-refresh
+  res.sendFile(path.join(__dirname, 'public', 'cancelado.html'));
+});
 
 
 app.listen(PORT, () => {
