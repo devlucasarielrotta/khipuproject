@@ -21,6 +21,8 @@
 ## Endpoints disponibles (BE)
 ### POST /crear-cobro
 ### GET /estado-pago/:payment_id
+### GET /cancelado/:payment_id 
+
 # 🛠 Tecnologías Utilizadas
 - Node.js (v18+ con fetch nativo)
 - Express para routing y middleware
